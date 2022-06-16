@@ -1,0 +1,53 @@
+<?php
+namespace Vendimia\Logger\Formatter;
+
+/**
+ * Writes the message and the context in one line, with optional date/time and channel.
+ */
+class OneLiner implements FormatterInterface
+{
+    private $date_format = 'Y-m-d H:i:s';
+    private $prefix;
+
+    /**
+     * Sets or disables the date format in the log line
+     */
+    public function setDateFormat($date_format)
+    {
+        $this->date_format = $date_format;
+    }
+
+    /**
+     * Sets the line prefix.
+     */
+    public function setPrefix($prefix)
+    {
+        $this->prefix = $prefix;
+    }
+
+    public function format($message, array $context = [])
+    {
+        /*$logname = $context['logger.name'];
+
+        if (is_null($logname)) {
+            $logname = strtoupper($context['logger.level']);
+        } else {
+            $logname .= '.' . strtoupper($context['logger.level']);
+        }*/
+
+        $parts = [];
+
+        if ($this->date_format) {
+            $parts[] = date($this->date_format);
+        }
+
+        //$parts[] = $logname;
+        $parts[] = $this->prefix . $message;
+
+
+        // Si hay un null, lo removemso
+        $parts = array_filter($parts);
+
+        return join (' ', $parts);
+    }
+}

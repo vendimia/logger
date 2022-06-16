@@ -1,0 +1,21 @@
+{
+    "name": "vendimia/logger",
+    "description": "PSR3-compatible logger",
+    "license": "GPL-3.0-or-later",
+    "keywords": ["php", "logger", "vendimia"],
+    "authors": [
+        {
+            "name": "Oliver Etchebarne",
+            "email": "yo@drmad.org"
+        }
+    ],
+    "require": {
+        "php": ">=8",
+        "psr/log": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Vendimia\\Logger\\": "src"
+        }
+    }
+}
