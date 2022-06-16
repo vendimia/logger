@@ -3,6 +3,7 @@ namespace Vendimia\Logger;
 
 use Psr\Log\LoggerInterface;
 use InvalidArgumentException;
+use Stringable;
 
 /**
  * Manages logging actions
@@ -23,61 +24,97 @@ class Logger implements LoggerInterface
         $this->name = $name;
     }
 
-    public function emergency($message, array $context = [])
+    public function emergency(
+        string|Stringable $message,
+        array $context = [],
+        array $extra = []
+    ): void
     {
-        $this->log(LogLevel::EMERGENCY, $message, $context);
+        $this->log(LogLevel::EMERGENCY, $message, $context, $extra);
     }
 
-    public function alert($message, array $context = [])
+    public function alert(
+        string|Stringable $message,
+        array $context = [],
+        array $extra = []
+    ): void
     {
-        $this->log(LogLevel::ALERT, $message, $context);
+        $this->log(LogLevel::ALERT, $message, $context, $extra);
     }
 
-    public function critical($message, array $context = [])
+    public function critical(
+        string|Stringable $message,
+        array $context = [],
+        array $extra = []
+    ): void
     {
-        $this->log(LogLevel::CRITICAL, $message, $context);
+        $this->log(LogLevel::CRITICAL, $message, $context, $extra);
     }
 
-    public function error($message, array $context = [])
+    public function error(
+        string|Stringable $message,
+        array $context = [],
+        array $extra = []
+    ): void
     {
-        $this->log(LogLevel::ERROR, $message, $context);
+        $this->log(LogLevel::ERROR, $message, $context, $extra);
     }
 
-    public function warning($message, array $context = [])
+    public function warning(
+        string|Stringable $message,
+        array $context = [],
+        array $extra = []
+    ): void
     {
-        $this->log(LogLevel::WARNING, $message, $context);
+        $this->log(LogLevel::WARNING, $message, $context, $extra);
     }
 
-    public function notice($message, array $context = [])
+    public function notice(
+        string|Stringable $message,
+        array $context = [],
+        array $extra = []
+    ): void
     {
-        $this->log(LogLevel::NOTICE, $message, $context);
+        $this->log(LogLevel::NOTICE, $message, $context, $extra);
     }
 
-    public function info($message, array $context = [])
+    public function info(
+        string|Stringable $message,
+        array $context = [],
+        array $extra = []
+    ): void
     {
-        $this->log(LogLevel::INFO, $message, $context);
+        $this->log(LogLevel::INFO, $message, $context, $extra);
     }
 
-    public function debug($message, array $context = [])
+    public function debug(
+        string|Stringable $message,
+        array $context = [],
+        array $extra = []
+    ): void
     {
-        $this->log(LogLevel::DEBUG, $message, $context);
+        $this->log(LogLevel::DEBUG, $message, $context, $extra);
     }
 
     /**
      * Adds a log registry at a given log level.
      */
-    public function log($level, $message, array $context = [], array $extra = [])
+    public function log(
+        $level, $message,
+        array $context = [],
+        array $extra = []
+    ): void
     {
-        // Añadimos el nombre de este logger al $extra
-        $extra['logger.name'] = $this->name;
-        $extra['logger.level'] = $level;
-
         $priority = LogLevel::PRIORITY[$level];
         foreach ($this->target as $target) {
-            list($target_object, $target_priority) = $target;
+            [$target_object, $target_priority] = $target;
 
             if ($priority <= $target_priority) {
-                $target_object->write($message, $context);
+                $target_object->getFormatter()->setMetadata(
+                    logger_name: $this->name,
+                    loglevel: $level,
+                );
+                $target_object->write($message, $context, $extra);
             }
         }
     }

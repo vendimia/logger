@@ -1,5 +1,8 @@
 <?php
+
 namespace Vendimia\Logger\Target;
+
+use Stringable;
 
 interface TargetInterface
 {
@@ -9,5 +12,5 @@ interface TargetInterface
      * This method should format first the message using a
      * Vendimia\Logger\Formatter instance.
      */
-    public function write($message, array $context);
+    public function write(string|Stringable $message, array $context = [], array $extra = []);
 }
