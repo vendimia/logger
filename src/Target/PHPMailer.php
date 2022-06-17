@@ -4,9 +4,12 @@ namespace Vendimia\Logger\Target;
 use Vendimia\Logger;
 use Vendimia\Logger\Formatter;
 use PHPMailer\PHPMailer\PHPMailer as PM;
+use Stringable;
 
 /**
- * Sends an email using PHPMailer
+ * Sends an email using PHPMailer.
+ *
+ * Require an already PHPMailer object, ready to send an email.
  */
 class PHPMailer extends TargetAbstract implements TargetInterface
 {
@@ -19,20 +22,16 @@ class PHPMailer extends TargetAbstract implements TargetInterface
     public function __construct(PM $mailer)
     {
         $this->mailer = $mailer;
-        $this->formatter = new Formatter\Html;
+        $this->formatter = new Formatter\SimpleHtml($this);
     }
 
-    public function write($message, array $context)
+    public function write(string|Stringable $message, array $context = [])
     {
         $body = $this->formatter->format($message, $context);
 
         $subject = '';
-        if (key_exists('_logger_name', $context)) {
-            $subject = "[{$context['_logger_name']}] ";
-            unset ($context['_logger_name']);
-        }
 
-        $subject .= strtoupper($context['_level']) . ': ' . (string)$message;
+        $subject .= strtoupper($this->getMetadata('loglevel')) . ': ' . (string)$message;
 
         // $message debe ser un string, siempre.
         $this->mailer->Subject = $subject;

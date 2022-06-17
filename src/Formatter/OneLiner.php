@@ -1,8 +1,12 @@
 <?php
+
 namespace Vendimia\Logger\Formatter;
+use Stringable;
 
 /**
- * Writes the message and the context in one line, with optional date/time
+ * Writes the message and the context in one line, with optional date/time.
+ *
+ * $context array is only used for replacing placeholders.
  */
 class OneLiner extends FormatterAbstract implements FormatterInterface
 {
@@ -14,9 +18,17 @@ class OneLiner extends FormatterAbstract implements FormatterInterface
         'show_loglevel' => true,
     ];
 
-    public function format(string|Stringable $message, array $context = [], array $extra = []): string
+    /**
+     * OneLiner doesn't require string escaping
+     */
+    public function escape(string $string): string
     {
-        $message = $this->interpolateContext($message, $context);
+        return $string;
+    }
+
+    public function format(string|Stringable $message, array $context = []): string
+    {
+        $message = $this->interpolatePlaceholders($message, $context);
 
         $parts = [];
 
@@ -25,16 +37,10 @@ class OneLiner extends FormatterAbstract implements FormatterInterface
         }
 
         if ($this->options['show_loglevel']) {
-            $parts[] = '[' . strtoupper($this->metadata['loglevel']) . ']';
+            $parts[] = '[' . strtoupper($this->getMetadata('loglevel')) . ']';
         }
 
-        //$parts[] = $logname;
-        $parts[] = $this->prefix . $message;
-
-        if ($extra) {
-            $parts[] = '(' . json_encode($extra) . ')';
-        }
-
+        $parts[] = $message;
 
         // Si hay un null, lo removemso
         $parts = array_filter($parts);

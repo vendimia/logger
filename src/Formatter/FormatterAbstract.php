@@ -10,13 +10,19 @@ abstract class FormatterAbstract implements FormatterInterface
 {
     protected $options = [];
 
-    protected $metadata = [];
-
     public function __construct(
-        protected ?TargetInterface $target = null,
+        private TargetInterface $target,
     )
     {
 
+    }
+
+    /**
+     * Gets metadata from $target
+     */
+    public function getMetadata($key)
+    {
+        return $this->target->getMetadata($key);
     }
 
     /**
@@ -35,17 +41,9 @@ abstract class FormatterAbstract implements FormatterInterface
     }
 
     /**
-     * Adds known metadata information to this formatter, like the loglevel
-     */
-    public function setMetadata(...$metadata): void
-    {
-        $this->metadata = array_merge($this->metadata, $metadata);
-    }
-
-    /**
      * Replace $context values in $message placeholders
      */
-    public function interpolateContext(string|Stringable $message, array $context = []): string
+    public function interpolatePlaceholders(string|Stringable $message, array $context = []): string
     {
         $replace = [];
 

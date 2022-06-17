@@ -2,12 +2,17 @@
 namespace Vendimia\Logger\Formatter;
 
 use Throwable;
+use Stringable;
 
 /**
- * Converts the $contect array in a HTML table
+ * Generates a simple HTML with $extra as a table
  */
-class Html implements FormatterInterface
+class SimpleHtml extends FormatterAbstract implements FormatterInterface
 {
+    protected $options = [
+        'show_loglevel' => true,
+    ];
+
     private $max_depth = 10;
 
     private function normalize($data, $depth = 0)
@@ -26,6 +31,12 @@ class Html implements FormatterInterface
         }
         return $data;
     }
+
+    public function escape(string $string): string
+    {
+        return htmlspecialchars($string);
+    }
+
 
     /**
      * Formats the array passes as $context into HTML
@@ -80,8 +91,9 @@ class Html implements FormatterInterface
         return $html;
     }
 
-    public function format($message, array $context)
+    public function format(string|Stringable $message, array $context = []): string
     {
+        $message = $this->interpolatePlaceholders($message, $context);
 
         // Las excecpiones las tratamos distinto.
         if (key_exists('exception', $context) &&

@@ -12,13 +12,16 @@ class Memory extends TargetAbstract implements TargetInterface
 
     public function __construct()
     {
-        // Por defecto, usa el OneLiner
-        $this->formatter = new Logger\Formatter\OneLiner;
+        $this->formatter = new Logger\Formatter\OneLiner($this);
+        $this->formatter->setOptions(
+            date_format: 'Y-m-d H:i:s'
+        );
+
     }
 
-    public function write($message, array $context)
+    public function write(string|Stringable $message, array $context = [])
     {
-        $this->storage[] = $this->formatter->format($message, $context);
+        $this->storage[] = $this->formatter->format($message, $context, $extra);
     }
 
     public function getMessages()

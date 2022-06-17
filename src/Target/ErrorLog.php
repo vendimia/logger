@@ -15,16 +15,10 @@ class ErrorLog extends TargetAbstract implements TargetInterface
     public function __construct()
     {
         $this->formatter = new Logger\Formatter\OneLiner($this);
-        $this->formatter->setOptions(show_loglevel: true);
-
     }
 
-    public function write(
-        string|Stringable $message,
-        array $context = [],
-        array $extra = []
-        )
+    public function write(string|Stringable $message, array $context = [])
     {
-        error_log($this->formatter->format($message, $context, $extra));
+        error_log($this->formatter->format($message, $context));
     }
 }

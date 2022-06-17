@@ -24,97 +24,61 @@ class Logger implements LoggerInterface
         $this->name = $name;
     }
 
-    public function emergency(
-        string|Stringable $message,
-        array $context = [],
-        array $extra = []
-    ): void
+    public function emergency(string|Stringable $message, array $context = []): void
     {
-        $this->log(LogLevel::EMERGENCY, $message, $context, $extra);
+        $this->log(LogLevel::EMERGENCY, $message, $context);
     }
 
-    public function alert(
-        string|Stringable $message,
-        array $context = [],
-        array $extra = []
-    ): void
+    public function alert(string|Stringable $message, array $context = []): void
     {
-        $this->log(LogLevel::ALERT, $message, $context, $extra);
+        $this->log(LogLevel::ALERT, $message, $context);
     }
 
-    public function critical(
-        string|Stringable $message,
-        array $context = [],
-        array $extra = []
-    ): void
+    public function critical(string|Stringable $message, array $context = []): void
     {
-        $this->log(LogLevel::CRITICAL, $message, $context, $extra);
+        $this->log(LogLevel::CRITICAL, $message, $context);
     }
 
-    public function error(
-        string|Stringable $message,
-        array $context = [],
-        array $extra = []
-    ): void
+    public function error(string|Stringable $message, array $context = []): void
     {
-        $this->log(LogLevel::ERROR, $message, $context, $extra);
+        $this->log(LogLevel::ERROR, $message, $context);
     }
 
-    public function warning(
-        string|Stringable $message,
-        array $context = [],
-        array $extra = []
-    ): void
+    public function warning(string|Stringable $message, array $context = []): void
     {
-        $this->log(LogLevel::WARNING, $message, $context, $extra);
+        $this->log(LogLevel::WARNING, $message, $context);
     }
 
-    public function notice(
-        string|Stringable $message,
-        array $context = [],
-        array $extra = []
-    ): void
+    public function notice(string|Stringable $message, array $context = []): void
     {
-        $this->log(LogLevel::NOTICE, $message, $context, $extra);
+        $this->log(LogLevel::NOTICE, $message, $context);
     }
 
-    public function info(
-        string|Stringable $message,
-        array $context = [],
-        array $extra = []
-    ): void
+    public function info(string|Stringable $message, array $context = []): void
     {
-        $this->log(LogLevel::INFO, $message, $context, $extra);
+        $this->log(LogLevel::INFO, $message, $context);
     }
 
-    public function debug(
-        string|Stringable $message,
-        array $context = [],
-        array $extra = []
-    ): void
+    public function debug(string|Stringable $message, array $context = []): void
     {
-        $this->log(LogLevel::DEBUG, $message, $context, $extra);
+        $this->log(LogLevel::DEBUG, $message, $context);
     }
 
     /**
      * Adds a log registry at a given log level.
      */
-    public function log(
-        $level, $message,
-        array $context = [],
-        array $extra = []
-    ): void
+    public function log($level, $message, array $context = []): void
     {
         $priority = LogLevel::PRIORITY[$level];
         foreach ($this->target as $target) {
             [$target_object, $target_priority] = $target;
 
             if ($priority <= $target_priority) {
-                $target_object->getFormatter()->setMetadata(
+                $target_object->setMetadata(
                     logger_name: $this->name,
                     loglevel: $level,
                 );
-                $target_object->write($message, $context, $extra);
+                $target_object->write($message, $context);
             }
         }
     }
@@ -135,12 +99,14 @@ class Logger implements LoggerInterface
         if (!key_exists($name, $this->logger_list)) {
             throw new InvalidArgumentException("Logger '{$name}' doesn't exists.");
         }
+
+        return $this->logger_list[$name];
     }
 
     /**
      * Syntax sugar for self::getLogger()
      */
-    public function __invoke(string $name, array $arguments)
+    public function __invoke(string $name)
     {
         return $this->getLogger($name);
     }

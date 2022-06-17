@@ -13,6 +13,9 @@
         "php": ">=8",
         "psr/log": "^3.0"
     },
+    "suggest": {
+        "phpmailer/phpmailer": "Required for 'PHPMailer' target"
+    },
     "autoload": {
         "psr-4": {
             "Vendimia\\Logger\\": "src"
