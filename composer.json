@@ -14,7 +14,10 @@
         "psr/log": "^3.0"
     },
     "suggest": {
-        "phpmailer/phpmailer": "Required for 'PHPMailer' target"
+        "phpmailer/phpmailer": "Required for 'PHPMailer' target",
+        "vendimia/object-manager": "Required for 'SimpleHtml' formatter to show more information",
+        "vendimia/http": "Required for 'SimpleHtml' formatter to show the HTTP request",
+        "vendimia/routing": "Required for 'SimpleHtml' formatter to show the matched routing rule"
     },
     "autoload": {
         "psr-4": {
