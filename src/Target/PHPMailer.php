@@ -16,6 +16,10 @@ class PHPMailer extends TargetAbstract implements TargetInterface
     private $addresses;
     private $mailer;
 
+    protected $options = [
+        'show_loglevel' => true,
+    ];
+
     /**
      * @param object $mailer A PHPMailer preconfigured instance.
      */
@@ -28,10 +32,13 @@ class PHPMailer extends TargetAbstract implements TargetInterface
     public function write(string|Stringable $message, array $context = [])
     {
         $body = $this->formatter->format($message, $context);
+        $subject = $this->formatter->interpolatePlaceholders($message, $context);
 
-        $subject = '';
+        if ($this->getOption('show_loglevel')) {
+            $subject = '[' . strtoupper($this->getMetadata('loglevel')) . '] '
+                . $subject;
 
-        $subject .= strtoupper($this->getMetadata('loglevel')) . ': ' . (string)$message;
+        }
 
         // $message debe ser un string, siempre.
         $this->mailer->Subject = $subject;

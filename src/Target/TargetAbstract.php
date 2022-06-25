@@ -26,6 +26,11 @@ abstract class TargetAbstract implements TargetInterface
         }
     }
 
+    public function getOption($option)
+    {
+        return $this->options[$option];
+    }
+
     /**
      * Adds known metadata information to this formatter, like the loglevel
      */
