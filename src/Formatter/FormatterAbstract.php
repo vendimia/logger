@@ -4,6 +4,7 @@ namespace Vendimia\Logger\Formatter;
 
 use Vendimia\Logger\Target\TargetInterface;
 use InvalidArgumentException;
+use Throwable;
 use Stringable;
 
 abstract class FormatterAbstract implements FormatterInterface
@@ -40,6 +41,11 @@ abstract class FormatterAbstract implements FormatterInterface
         }
     }
 
+    public function getOption($option)
+    {
+        return $this->options[$option];
+    }
+
     /**
      * Replace $context values in $message placeholders
      */
@@ -48,6 +54,12 @@ abstract class FormatterAbstract implements FormatterInterface
         $replace = [];
 
         foreach ($context as $key => $value) {
+
+            // Para throwables, solo usamos el mensaje de la excepción
+            if ($value instanceof Throwable) {
+                $value = get_class($value) . ': ' .  $value->getMessage();
+            }
+
             // Solo reemplazamos valores stringables
             if (is_string($key) || $value instanceof Stringable) {
                 $replace['{' . $key . '}'] = (string)$value;
