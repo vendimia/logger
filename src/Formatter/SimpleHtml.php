@@ -4,6 +4,10 @@ namespace Vendimia\Logger\Formatter;
 use Throwable;
 use Stringable;
 
+use Vendimia\ObjectManager\ObjectManager;
+use Vendimia\Http\Request;
+use Vendimia\Routing\MatchedRoute;
+
 /**
  * Generates a simple HTML with $extra as a table
  */
@@ -11,6 +15,12 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
 {
     protected $options = [
         'show_loglevel' => true,
+
+        // Requires packages vendimia\object-manager and vendimia\http
+        'show_request' => false,
+
+        // Requires packages vendimia\object-manager and vendimia\routing
+        'show_matched_rule' => false,
     ];
 
     private $max_depth = 10;
@@ -37,7 +47,6 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
         return htmlspecialchars($string);
     }
 
-
     /**
      * Formats the array passes as $context into HTML
      */
@@ -61,7 +70,6 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
 
         return $html;
     }
-
 
     public function formatThrowable(Throwable $throwable)
     {
@@ -104,8 +112,60 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
             $html = "<h1>" . htmlentities($message) . "</h1>";
         }
 
-
         $html .= $this->formatContext($context);
+
+        // Si hay una excepción en el context, la añadimos
+        if ($context['exception'] ?? false
+            && $context['exception'] instanceof Throwable) {
+
+            $html .= <<<EOF
+            <h2>Exception</h2>
+
+            {$this->formatThrowable($context['exception'])}
+            EOF;
+        }
+
+        // Si está disponible Vendimia\ObjectManager\ObjectManager, intentamos
+        // obtener algunas cosas extras
+        $object = null;
+        if (class_exists(ObjectManager::class)) {
+            $object = ObjectManager::retrieve();
+        }
+
+        if ($this->getOption('show_matched_rule')) {
+            // Matched route?
+            if ($matched_route = $object?->get(MatchedRoute::class)) {
+
+                $html .= <<<EOF
+                <h2>Matched route</h2>
+
+                <p><pre>{$matched_route}</pre></p>
+                EOF;
+            }
+        }
+
+
+        if ($this->getOption('show_request')) {
+            // Request?
+            if ($request = $object?->get(Request::class)) {
+                $data = [
+                    'Request URI' => $request->getUri() ?? '',
+                    'HTTP Method' => $request->getMethod(),
+                    'Query parameters' => $request->query_params->asArray(),
+                    'Parsed body' => $request->parsed_body->asArray(),
+                    'Server parameters' => $request->getServerParams(),
+                ];
+
+                $array = $this->formatContext($data);
+
+                $html .= <<<EOF
+                <h2>Request</h2>
+
+                {$array}
+                EOF;
+            }
+
+        }
 
         return $html;
     }
