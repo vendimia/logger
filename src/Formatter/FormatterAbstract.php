@@ -61,7 +61,7 @@ abstract class FormatterAbstract implements FormatterInterface
             }
 
             // Solo reemplazamos valores stringables
-            if (is_string($key) || $value instanceof Stringable) {
+            if (is_string($value) || $value instanceof Stringable) {
                 $replace['{' . $key . '}'] = (string)$value;
             }
         }
