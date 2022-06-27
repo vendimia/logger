@@ -25,6 +25,40 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
 
     private $max_depth = 10;
 
+    /**
+     * Process and return method arguments from a trace
+     */
+    protected static function processTraceArgs($args, $separator = ', '): string
+    {
+        // Si no es iterable, lo retornamos de vuelta
+        if (!is_iterable($args)) {
+            return (string)$args;
+        }
+
+        $result = [];
+        foreach ($args as $param => $arg) {
+            $processed_arg = '';
+            if (is_string($param)) {
+                $processed_arg = "{$param}: ";
+            }
+            if (is_null($arg)) {
+                $processed_arg .= 'NULL';
+            } elseif (is_array($arg)) {
+                $processed_arg .= '[' . self::processTraceArgs($arg) . ']';
+            } elseif (is_object($arg)) {
+                $processed_arg .= get_class($arg);// . ' ' . $short_name;
+            } elseif (is_string($arg)) {
+                $processed_arg .= '"' . $arg . '"';
+            } else {
+                $processed_arg .= $arg;
+            }
+
+            $result[] = $processed_arg;
+        }
+
+        return join($separator, $result);
+    }
+
     private function normalize($data, $depth = 0)
     {
         if ($depth > $this->max_depth) {
@@ -79,15 +113,21 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
         $t_line = $throwable->getLine();
         $t_trace = $throwable->getTrace();
 
-        $html = "<p>An unhandled <strong>{$t_class}</strong> exception has occurred:</p>\n\n";
-        $html .= "<p><strong>{$t_description}</strong></p>\n\n";
-        $html .= "<p>On file <strong>{$t_file}</strong>:{$t_line}</p>\n\n";
+        $html = "<h2>Exception</h2>\n\n";
+
+        $html .= $this->formatContext([
+            'class' => $t_class,
+            'description' => $t_description,
+            'file' => $t_file,
+            'line' => $t_line
+        ]);
+
         $html .= "<h2>Stack trace</h2>\n\n";
         $html .= "<ol>";
 
         foreach ($t_trace as $t) {
             if (!isset($t['file'])) {
-                $args = join(', ', $t['args'] ?? []);
+                $args = htmlentities($this->processTraceArgs($t['args'] ?? []));
                 $html .= "<li><tt>{$t['class']}{$t['type']}{$t['function']}({$args})</tt></li>\n";
             } else {
                 $html .= "<li><tt>{$t['file']}:{$t['line']}</tt></li>\n";
@@ -103,27 +143,20 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
     {
         $message = $this->interpolatePlaceholders($message, $context);
 
+        $html = '';
+
         // Las excecpiones las tratamos distinto.
-        if (key_exists('exception', $context) &&
-            $context['exception'] instanceof Throwable) {
-
-            return $this->formatThrowable($context['exception']);
-        } else {
-            $html = "<h1>" . htmlentities($message) . "</h1>";
-        }
-
-        $html .= $this->formatContext($context);
-
-        // Si hay una excepción en el context, la añadimos
         if ($context['exception'] ?? false
             && $context['exception'] instanceof Throwable) {
 
-            $html .= <<<EOF
-            <h2>Exception</h2>
+            $html .= $this->formatThrowable($context['exception']);
 
-            {$this->formatThrowable($context['exception'])}
-            EOF;
+            unset($context['exception']);
         }
+
+        $html .= "<h2>Context</h2>\n\n";
+
+        $html .= $this->formatContext($context);
 
         // Si está disponible Vendimia\ObjectManager\ObjectManager, intentamos
         // obtener algunas cosas extras
