@@ -127,8 +127,11 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
 
         foreach ($t_trace as $t) {
             if (!isset($t['file'])) {
+                $class = $trace['class'] ?? '';
+                $type = $trace['type'] ?? '';
+
                 $args = htmlentities($this->processTraceArgs($t['args'] ?? []));
-                $html .= "<li><tt>{$t['class']}{$t['type']}{$t['function']}({$args})</tt></li>\n";
+                $html .= "<li><tt>{$class}{$type}{$t['function']}({$args})</tt></li>\n";
             } else {
                 $html .= "<li><tt>{$t['file']}:{$t['line']}</tt></li>\n";
             }
