@@ -96,6 +96,15 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
             if (is_array($value)) {
                 $value = $this->formatContext($value);
             }
+            if (is_object($value)) {
+                $prefix = '<span style="background-color: #EE8">[' . get_class($value) . ']</span> ';
+
+                if ($value instanceof Stringable) {
+                    $value = $prefix . (string)$value;
+                } else {
+                    $value = $prefix . $this->formatContext($value);
+                }
+            }
 
             $html .= '<td style="padding: 5px; border-bottom: 1px solid #eee">' . $value . '</td>';
             $html .= '</tr>';
