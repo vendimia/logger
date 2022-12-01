@@ -84,15 +84,15 @@ class Logger implements LoggerInterface
     }
 
     /**
-     * Creates a new logger, accesible
+     * Creates a new logger
      */
-    public function newLogger(string $name)
+    public function createLogger(string $name)
     {
-        $this->logger_list[$name] = new self($name);
+        return $this->logger_list[$name] = new self($name);
     }
 
     /**
-     * Returns a logger
+     * Returns an already created logger
      */
     public function getLogger(string $name)
     {
