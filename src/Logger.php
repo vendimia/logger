@@ -1,7 +1,10 @@
 <?php
 namespace Vendimia\Logger;
 
-use Psr\Log\LoggerInterface;
+use Psr\Log\{
+    LoggerInterface,
+    InvalidArgumentException as PsrInvalidArgumentException
+};
 use InvalidArgumentException;
 use Stringable;
 
@@ -69,9 +72,11 @@ class Logger implements LoggerInterface
      */
     public function log($level, $message, array $context = []): void
     {
+        if (!key_exists($level, LogLevel::PRIORITY)) {
+            throw new PsrInvalidArgumentException("Log level '$level' unknow");
+        }
+
         $priority = LogLevel::PRIORITY[$level];
-        foreach ($this->target as $target) {
-            [$target_object, $target_priority] = $target;
 
             if ($priority <= $target_priority) {
                 $target_object->setMetadata(
