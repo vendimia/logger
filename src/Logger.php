@@ -13,8 +13,8 @@ use Stringable;
  */
 class Logger implements LoggerInterface
 {
-    /** Message targets */
-    private $target = [];
+    /** Message targets by priority */
+    private $priority_target = [];
 
     /** This logger name */
     private $name = 'default';
@@ -78,12 +78,26 @@ class Logger implements LoggerInterface
 
         $priority = LogLevel::PRIORITY[$level];
 
-            if ($priority <= $target_priority) {
-                $target_object->setMetadata(
+        // Escaneamos todos los niveles de prioridad, desde el mas bajo (alta
+        // prioridad) hasta el mas alto (baja prioridad)
+        $priorities = array_keys($this->priority_target);
+        sort($priorities);
+
+        foreach ($priorities as $target_priority) {
+            // Solo procesamos si la prioridad del mensaje es menor o igual
+            // a la propiedad del target analizado
+            if ($priority > $target_priority) {
+                continue;
+            }
+            foreach ($this->priority_target[$target_priority] as $target) {
+                $target->setMetadata(
                     logger_name: $this->name,
                     loglevel: $level,
                 );
-                $target_object->write($message, $context);
+                $target->write($message, $context);
+                if (!$target->getBubbling()) {
+                    break 2;
+                }
             }
         }
     }
@@ -121,7 +135,12 @@ class Logger implements LoggerInterface
      */
     public function addTarget(Target\TargetInterface $target, $level = LogLevel::DEBUG)
     {
-        $this->target[] = [$target, LogLevel::PRIORITY[$level]];
+        $priority = LogLevel::PRIORITY[$level];
+
+        if (!key_exists($priority, $this->priority_target)) {
+            $this->priority_target[$priority] = [];
+        }
+        $this->priority_target[$priority][] = $target;
 
         return $this;
     }

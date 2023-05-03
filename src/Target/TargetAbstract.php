@@ -11,6 +11,9 @@ abstract class TargetAbstract implements TargetInterface
     protected $options = [];
     protected $metadata = [];
 
+    /** True continues processing all the target after this */
+    protected bool $bubbling = true;
+
     /**
      * Sets this formatter options.
      *
@@ -44,6 +47,15 @@ abstract class TargetAbstract implements TargetInterface
         return $this->metadata[$metadata];
     }
 
+    public function setBubbling(bool $bubbling = false)
+    {
+        $this->bubbling = false;
+    }
+
+    public function getBubbling(): bool
+    {
+        return $this->bubbling;
+    }
 
     /**
      * Sets a formatter
