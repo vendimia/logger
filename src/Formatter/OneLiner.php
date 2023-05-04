@@ -10,8 +10,6 @@ use Stringable;
  */
 class OneLiner extends FormatterAbstract implements FormatterInterface
 {
-    private $prefix;
-
     protected $options = [
         // Other than null, adds date and time before the message, using this format
         'date_format' => null,

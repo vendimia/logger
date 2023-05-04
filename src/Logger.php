@@ -22,6 +22,9 @@ class Logger implements LoggerInterface
     /** Logger list */
     private $logger_list = [];
 
+    /** Message prefix */
+    private string $prefix = '';
+
     public function __construct($name = 'default')
     {
         $this->name = $name;
@@ -94,12 +97,20 @@ class Logger implements LoggerInterface
                     logger_name: $this->name,
                     loglevel: $level,
                 );
-                $target->write($message, $context);
+                $target->write($this->prefix . $message, $context);
                 if (!$target->getBubbling()) {
                     break 2;
                 }
             }
         }
+    }
+
+    /**
+     * Sets a message prefix for this logger
+     */
+    public function setPrefix(string $prefix)
+    {
+        $this->prefix = $prefix;
     }
 
     /**
