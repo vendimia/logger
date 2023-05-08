@@ -96,6 +96,7 @@ class Logger implements LoggerInterface
                 $target->setMetadata(
                     logger_name: $this->name,
                     loglevel: $level,
+                    priority: $priority,
                 );
                 $target->write($this->prefix . $message, $context);
                 if (!$target->getBubbling()) {

@@ -13,7 +13,12 @@ class OneLiner extends FormatterAbstract implements FormatterInterface
     protected $options = [
         // Other than null, adds date and time before the message, using this format
         'date_format' => null,
+
+        // Prefix the line with [LOGLEVEL]
         'show_loglevel' => true,
+
+        // Prefix the line with <PRIORITY>
+        'show_priority' => false,
     ];
 
     /**
@@ -43,6 +48,12 @@ class OneLiner extends FormatterAbstract implements FormatterInterface
         // Si hay un null, lo removemso
         $parts = array_filter($parts);
 
-        return join (' ', $parts);
+        $line = join(' ', $parts);
+
+        if ($this->options['show_priority']) {
+            $line = '<' . $this->getMetadata('priority') . '>' . $line;
+        }
+
+        return $line;
     }
 }
