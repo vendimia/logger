@@ -73,7 +73,7 @@ class Logger implements LoggerInterface
     /**
      * Adds a log registry at a given log level.
      */
-    public function log($level, $message, array $context = []): void
+    public function log($level, string|Stringable $message, array $context = []): void
     {
         if (!key_exists($level, LogLevel::PRIORITY)) {
             throw new PsrInvalidArgumentException("Log level '$level' unknow");
