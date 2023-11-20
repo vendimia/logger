@@ -21,14 +21,6 @@ class OneLiner extends FormatterAbstract implements FormatterInterface
         'show_priority' => false,
     ];
 
-    /**
-     * OneLiner doesn't require string escaping
-     */
-    public function escape(string $string): string
-    {
-        return $string;
-    }
-
     public function format(string|Stringable $message, array $context = []): string
     {
         $message = $this->interpolatePlaceholders($message, $context);

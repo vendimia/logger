@@ -19,6 +19,14 @@ abstract class FormatterAbstract implements FormatterInterface
     }
 
     /**
+     * By default, escape() does nothing
+     */
+    public function escape(string $string): string
+    {
+        return $string;
+    }
+
+    /**
      * Gets metadata from $target
      */
     public function getMetadata($key)
