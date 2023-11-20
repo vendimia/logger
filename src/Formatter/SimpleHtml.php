@@ -1,4 +1,5 @@
 <?php
+
 namespace Vendimia\Logger\Formatter;
 
 use Throwable;
@@ -82,9 +83,9 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
     }
 
     /**
-     * Formats the array passes as $context into HTML
+     * Formats the array argument $context into HTML
      */
-    public function formatContext($context)
+    public function formatContext(array $context)
     {
         $html = '<table style="border-collapse: collapse">';
         $context = $this->normalize($context);

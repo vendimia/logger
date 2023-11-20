@@ -40,10 +40,13 @@ class PHPMailer extends TargetAbstract implements TargetInterface
 
         }
 
+        // Creamos el AltBody con Formatter\SimpleText
+        $simple_text_formatter = new Formatter\SimpleText($this);
+
         // $message debe ser un string, siempre.
         $this->mailer->Subject = $subject;
         $this->mailer->Body = $body;
-        $this->mailer->AltBody = strip_tags($body);
+        $this->mailer->AltBody = $simple_text_formatter->format($message, $context);
         $this->mailer->send();
     }
 }
