@@ -16,9 +16,9 @@ use Vendimia\Exception\VendimiaException;
 class SimpleText extends SimpleHtml implements FormatterInterface
 {
     /**
-     * Formats the array argument as text
+     * Formats the traversable argument $context into HTML
      */
-    public function formatContext(array $context, $indent = 0)
+    public function formatContext($context, $indent = 0)
     {
         $text = '';
 

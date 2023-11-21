@@ -83,9 +83,9 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
     }
 
     /**
-     * Formats the array argument $context into HTML
+     * Formats the traversable argument $context into HTML
      */
-    public function formatContext(array $context)
+    public function formatContext($context)
     {
         $html = '<table style="border-collapse: collapse">';
         $context = $this->normalize($context);
