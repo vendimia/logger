@@ -206,11 +206,11 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
             // Request?
             if ($request = $object?->get(Request::class)) {
                 $data = [
-                    'Request URI' => $request->getUri() ?? '',
-                    'HTTP Method' => $request->getMethod(),
-                    'Query parameters' => $request->query_params->asArray(),
-                    'Parsed body' => $request->parsed_body->asArray(),
-                    'Server parameters' => $request->getServerParams(),
+                    'Request URI' => $request?->getUri() ?? '',
+                    'HTTP Method' => $request?->getMethod(),
+                    'Query parameters' => $request->query_params?->asArray(),
+                    'Parsed body' => $request->parsed_body?->asArray(),
+                    'Server parameters' => $request?->getServerParams(),
                 ];
 
                 $array = $this->formatContext($data);
