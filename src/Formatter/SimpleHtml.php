@@ -117,37 +117,48 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
 
     public function formatThrowable(Throwable $throwable)
     {
-        $t_class = get_class($throwable);
-        $t_description = $throwable->getMessage();
-        $t_file = $throwable->getFile();
-        $t_line = $throwable->getLine();
-        $t_trace = $throwable->getTrace();
+        $html = '';
 
-        $html = "<h2>Exception</h2>\n\n";
+        $first_exception = true;
 
-        $html .= $this->formatContext([
-            'class' => $t_class,
-            'description' => $t_description,
-            'file' => $t_file,
-            'line' => $t_line
-        ]);
+        do {
+            $t_class = get_class($throwable);
+            $t_description = $throwable->getMessage();
+            $t_file = $throwable->getFile();
+            $t_line = $throwable->getLine();
+            $t_trace = $throwable->getTrace();
 
-        $html .= "<h2>Stack trace</h2>\n\n";
-        $html .= "<ol>";
-
-        foreach ($t_trace as $t) {
-            if (!isset($t['file'])) {
-                $class = $trace['class'] ?? '';
-                $type = $trace['type'] ?? '';
-
-                $args = htmlentities($this->processTraceArgs($t['args'] ?? []));
-                $html .= "<li><tt>{$class}{$type}{$t['function']}({$args})</tt></li>\n";
-            } else {
-                $html .= "<li><tt>{$t['file']}:{$t['line']}</tt></li>\n";
+            if (!$first_exception) {
+                $html .= '<p>Previous exception:</p>';
             }
-        }
 
-        $html .= "</ol>";
+            $html .= "<h2>{$t_class}</h2><h3>{$t_description}</h3>\n\n";
+
+            $html .= $this->formatContext([
+                'file' => $t_file,
+                'line' => $t_line
+            ]);
+
+            $html .= "<h2>Stack trace</h2>\n\n";
+            $html .= "<ol>";
+
+            foreach ($t_trace as $t) {
+                if (!isset($t['file'])) {
+                    $class = $trace['class'] ?? '';
+                    $type = $trace['type'] ?? '';
+
+                    $args = htmlentities($this->processTraceArgs($t['args'] ?? []));
+                    $html .= "<li><tt>{$class}{$type}{$t['function']}({$args})</tt></li>\n";
+                } else {
+                    $html .= "<li><tt>{$t['file']}:{$t['line']}</tt></li>\n";
+                }
+            }
+
+            $html .= "</ol>";
+
+            $first_exception = false;
+
+        } while ($throwable = $throwable->getPrevious());
 
         return $html;
     }
