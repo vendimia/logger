@@ -18,7 +18,7 @@ class SimpleText extends SimpleHtml implements FormatterInterface
     /**
      * Formats the traversable argument $context into HTML
      */
-    public function formatContext($context, $indent = 0)
+    public function formatContext($context, $indent = 0): string
     {
         $text = '';
 

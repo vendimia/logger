@@ -9,6 +9,9 @@ use Vendimia\ObjectManager\ObjectManager;
 use Vendimia\Http\Request;
 use Vendimia\Routing\MatchedRoute;
 
+use Vendimia\Exception\VendimiaException;
+use Vendimia\Database\DatabaseException;
+
 /**
  * Generates a simple HTML with $extra as a table
  */
@@ -85,7 +88,7 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
     /**
      * Formats the traversable argument $context into HTML
      */
-    public function formatContext($context)
+    public function formatContext($context): string
     {
         $html = '<table style="border-collapse: collapse">';
         $context = $this->normalize($context);
@@ -129,7 +132,7 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
             $t_trace = $throwable->getTrace();
 
             if (!$first_exception) {
-                $html .= '<p>Previous exception:</p>';
+                $html .= '<p>Previous exception ⮯</p>';
             }
 
             $html .= "<h2>{$t_class}</h2><h3>{$t_description}</h3>\n\n";
@@ -155,6 +158,16 @@ class SimpleHtml extends FormatterAbstract implements FormatterInterface
             }
 
             $html .= "</ol>";
+
+            // FIXME: Debe haber una mejor forma de no repetir esto
+            if ($throwable instanceof VendimiaException ||
+                $throwable instanceof DatabaseException
+            )
+            {
+                $html .= '<h2>Extra information</h2>';
+                $html .= $this->formatContext($throwable->getExtra());
+
+            }
 
             $first_exception = false;
 
