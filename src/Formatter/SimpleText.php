@@ -53,49 +53,63 @@ class SimpleText extends SimpleHtml implements FormatterInterface
 
     public function formatThrowable(Throwable $throwable)
     {
-        $t_class = get_class($throwable);
-        $t_description = $throwable->getMessage();
-        $t_file = $throwable->getFile();
-        $t_line = $throwable->getLine();
-        $t_trace = $throwable->getTrace();
+        $text = '';
 
-        $text = <<<EOF
-        $t_description
+        $first_exception = true;
 
-        Unhandled $t_class exception on
-        $t_file:$t_line
+        do {
 
-        Stack trace
-        ===========
+            $t_class = get_class($throwable);
+            $t_description = $throwable->getMessage();
+            $t_file = $throwable->getFile();
+            $t_line = $throwable->getLine();
+            $t_trace = $throwable->getTrace();
 
-        EOF;
-
-        $id = 1;
-        foreach ($t_trace as $t) {
-            if (!isset($t['file'])) {
-                $class = $trace['class'] ?? '';
-                $type = $trace['type'] ?? '';
-
-                $args = htmlentities($this->processTraceArgs($t['args'] ?? []));
-
-                $trace_line = "{$class}{$type}{$t['function']}({$args})";
-            } else {
-                $trace_line = "{$t['file']}:{$t['line']}";
+            if (!$first_exception) {
+                $text .= "\nPrevious exception ⮯\n\n";
             }
 
-            $text .= str_pad($id, 3, ' ', STR_PAD_LEFT);
-            $text .= ". {$trace_line}\n";
+            $text .= <<<EOF
+            × $t_description
 
-            $id++;
-        }
-        $text .= "\n";
+            Unhandled "$t_class" exception on
+            $t_file:$t_line
 
-        // VendimiaException puede tener más info
-        if ($throwable instanceof VendimiaException) {
-            $text .= "Extra information\n=================\n\n";
-            $text .=  $this->formatContext($throwable->getExtra());
+            Stack trace
+            ===========
 
-        }
+            EOF;
+
+            $id = 1;
+            foreach ($t_trace as $t) {
+                if (!isset($t['file'])) {
+                    $class = $trace['class'] ?? '';
+                    $type = $trace['type'] ?? '';
+
+                    $args = htmlentities($this->processTraceArgs($t['args'] ?? []));
+
+                    $trace_line = "{$class}{$type}{$t['function']}({$args})";
+                } else {
+                    $trace_line = "{$t['file']}:{$t['line']}";
+                }
+
+                $text .= str_pad($id, 3, ' ', STR_PAD_LEFT);
+                $text .= ". {$trace_line}\n";
+
+                $id++;
+            }
+            $text .= "\n";
+
+            // VendimiaException puede tener más info
+            if ($throwable instanceof VendimiaException) {
+                $text .= "Extra information\n=================\n\n";
+                $text .=  $this->formatContext($throwable->getExtra());
+
+            }
+
+            $first_exception = false;
+
+        } while ($throwable = $throwable->getPrevious());
 
         return $text . "\n";
     }
