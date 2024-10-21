@@ -1,26 +1,29 @@
 <?php
+
 namespace Vendimia\Logger;
 
 use Psr\Log\{
     LoggerInterface,
     InvalidArgumentException as PsrInvalidArgumentException
 };
+
 use InvalidArgumentException;
 use Stringable;
+use ArrayAccess;
 
 /**
  * Manages logging actions
  */
-class Logger implements LoggerInterface
+class Logger implements LoggerInterface, ArrayAccess
 {
     /** Message targets by priority */
-    private $priority_target = [];
+    private array $priority_target = [];
 
     /** This logger name */
-    private $name = 'default';
+    private string $name = 'default';
 
     /** Logger list */
-    private $logger_list = [];
+    private array $logger_list = [];
 
     /** Message prefix */
     private string $prefix = '';
@@ -155,5 +158,37 @@ class Logger implements LoggerInterface
         $this->priority_target[$priority][] = $target;
 
         return $this;
+    }
+
+    /**
+     * ArrayAccess implementation: returns if a logger exists
+     */
+    public function offsetExists(mixed $logger_name): bool
+    {
+        return key_exists($logger_name, $this->$logger_list);
+    }
+
+    /**
+     * ArrayAccess implementation: returns a logger
+     */
+    public function &offsetGet(mixed $logger_name): mixed
+    {
+        return $this->logger_list[$logger_name];
+    }
+
+    /**
+     * ArrayAccess implementation: Updates a logger
+     */
+    public function offsetSet(mixed $logger_name, mixed $logger): void
+    {
+        $this->logger_list[$logger_name] = $logger;
+    }
+
+    /**
+     * ArrayAccess implementation: Removes a logger
+     */
+    public function offsetUnset(mixed $logger_name): void
+    {
+        unset($this->logger_list[$logger_name]);
     }
 }
