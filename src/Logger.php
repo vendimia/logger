@@ -28,6 +28,9 @@ class Logger implements LoggerInterface, ArrayAccess
     /** Message prefix */
     private string $prefix = '';
 
+    /** Preloaded message context, merged with $context argument */
+    private array $context = [];
+
     public function __construct($name = 'default')
     {
         $this->name = $name;
@@ -82,6 +85,12 @@ class Logger implements LoggerInterface, ArrayAccess
             throw new PsrInvalidArgumentException("Log level '$level' unknow");
         }
 
+        // $context es fusionado con $this->context
+        $context = [
+            ...$this->context,
+            ...$context,
+        ];
+
         $priority = LogLevel::PRIORITY[$level];
 
         // Escaneamos todos los niveles de prioridad, desde el mas bajo (alta
@@ -115,6 +124,14 @@ class Logger implements LoggerInterface, ArrayAccess
     public function setPrefix(string $prefix)
     {
         $this->prefix = $prefix;
+    }
+
+    /**
+     * Preloads $context with some arbitrary data
+     */
+    public function preloadContext(...$context)
+    {
+        $this->context = $context;
     }
 
     /**
