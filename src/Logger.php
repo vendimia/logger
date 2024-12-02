@@ -131,7 +131,10 @@ class Logger implements LoggerInterface, ArrayAccess
      */
     public function preloadContext(...$context)
     {
-        $this->context = $context;
+        $this->context = [
+            ...$this->context,
+            ...$context
+        ];
     }
 
     /**
